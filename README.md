@@ -15,6 +15,7 @@ view model =
         [ config model.config
         , content model.content
         , onCKEditorChange CKEditorChanged
+        , onCKEditorBlur CKEditorBlurred
         ]
         []
 ```
