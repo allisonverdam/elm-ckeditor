@@ -4,6 +4,7 @@ module CKEditor
         , config
         , content
         , onCKEditorChange
+        , onCKEditorBlur
         , defaultConfig
         )
 
@@ -17,7 +18,7 @@ module CKEditor
 
 # Attributes
 
-@docs config, content, onCKEditorChange
+@docs config, content, onCKEditorChange, onCKEditorBlur
 
 
 # Helpers
@@ -40,6 +41,7 @@ import Json.Encode as Encode exposing (encode, Value)
             [ config defaultConfig
             , content model.content
             , onCKEditorChange CKEditorChanged
+            , onCKEditorBlur CKEditorBlurred
             ]
             []
 
@@ -54,7 +56,7 @@ the CKEditor instance is reloaded to apply the changes.
 
     config <|
         Json.Encode.object
-            [ ( "uiColor", Json.Encode.string "#AADC6E" ) ]
+            [ ( "uiColor", JsonEncode.string "#AADC6E" ) ]
 
 Available options are documented at
 <http://docs.ckeditor.com/#!/api/CKEDITOR.config>
@@ -89,8 +91,37 @@ onCKEditorChange msg =
     on "ckeditorchange" (Decode.map msg (Decode.field "detail" Decode.string))
 
 
+{-| Event fired when blur the CKEditor.
+
+    type Msg
+        = onCKEditorBlurred String
+
+    onCKEditorBlur onCKEditorBlurred
+
+-}
+onCKEditorBlur : (String -> msg) -> Attribute msg
+onCKEditorBlur msg =
+    on "ckeditorblur" (Decode.map msg (Decode.field "detail" Decode.string))
+
+
 {-| Default CKEditor config, this is just an empty JSON object value
 -}
 defaultConfig : Value
 defaultConfig =
-    Encode.object []
+    Encode.object [
+        ("removePlugins", Encode.string "elementspath,image,form"),
+        ("resize_enabled", Encode.bool False),
+        ("toolbar", 
+            Encode.list [
+                Encode.list [
+                    Encode.string "Maximize",
+                    Encode.string "Format",
+                    Encode.string "Bold",
+                    Encode.string "TextColor",
+                    Encode.string "Subscript",
+                    Encode.string "Superscript"
+                ]
+            ]
+        )
+    ]
+
